@@ -118,9 +118,11 @@ common conflation between credentialing a person and clearing an order.
 Each order decision produces an append-only, signed record held by the provider. Only a salted
 SHA-256 commitment over (salt, order id, verdict, customer DID) is anchored, and commitments are
 anchored in fixed-size batches of $B=16$, padded with indistinguishable random fillers and
-sorted, so that order volume, timing, and the screening verdict are not recoverable from what is
-anchored. A customer-facing receipt never contains the verdict, preventing the audit channel
-from becoming a screening-evasion oracle.
+sorted, so that the screening verdict and the order count \textit{within} a batch are not
+recoverable from what is anchored. (The number and timing of batches still leak coarse volume; a
+fixed-cadence anchoring schedule, noted in Section~\ref{sec:limits}, closes this residual
+channel and is future work.) A customer-facing receipt never contains the verdict, preventing the
+audit channel from becoming a screening-evasion oracle.
 
 \subsection{Infohazard guard}
 No sequence-like data may enter the layer. A guard rejects any payload containing a
@@ -207,11 +209,14 @@ number of real orders in the batch, so order volume is not recoverable from what
 
 \section{Related Work and Positioning}
 Sequence-screening systems~\cite{securedna,ibbis} are complementary, not competing; synth-attest
-consumes their verdicts as opaque tokens. Commercial KYC entrants such as Aclid use centralized,
-per-provider identity verification with no portable customer-held credential or cross-provider
-audit. SecureDNA's Exemption Certification System pre-vets customers and orders but is not a
-portable identity. IBBIS has published customer-screening forms and plans a 2026 identity
-landscape analysis but has not built credentials. The ``Know Your Scientist'' proposal~\cite{kys}
+consumes their verdicts as opaque tokens. Commercial entrants such as Aclid (acquired by Ginkgo
+Bioworks in 2024) provide first-party sequence screening plus centralized, per-provider customer
+screening, with no portable customer-held credential or cross-provider tamper-evident audit.
+SecureDNA originated the Exemption Certification System, which issues order-specific, screening-
+coupled exemption certificates; synth-attest generalizes that concept into a portable W3C
+credential form and adds the portable identity and order-audit layers SecureDNA does not provide.
+IBBIS has published customer-screening guidance and forms and plans a 2026 identity landscape
+analysis but has not built credential software. The ``Know Your Scientist'' proposal~\cite{kys}
 governs access to biological AI design tools (a different chokepoint) via institution-vouching and
 shared exclusion lists, and explicitly does not use verifiable credentials, decentralized
 identifiers, or a cryptographic audit. Against this landscape, the distinguishing and best-supported
@@ -219,6 +224,7 @@ property of synth-attest is being the only \textit{open-source, decentralized W3
 implementation with a tamper-evident order audit}; portability is a feature, not the core novelty.
 
 \section{Limitations and Future Work}
+\label{sec:limits}
 This is a prototype, not a production system, and the reported results are functional and
 integration tests, not an empirical study of deployed effectiveness. Four limitations are
 explicit. (1) \textit{Privacy of the audit:} fixed-size batches hide the order count within a
