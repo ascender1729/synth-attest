@@ -13,9 +13,17 @@ flow on a dependency-free engine and witnesses the tamper-evident audit root to 
     1. identity VC verifies: True
     2. exemption VC verifies: True
     3. screening verdict (opaque): tier-review
-    4. batch root e3b21c... witnessed via s3-object-lock (immutable=True)
+    4. batch root 47828ef5... witnessed via s3-object-lock (immutable=True)
+       read-back matches: True
     5. customer receipt: {'orderId': 'ord-1001', 'status': 'recorded'}
     flow OK
+
+Then, attempting to delete the witnessed root version:
+    aws s3api delete-object --bucket <b> --key anchors/batch-0001.root --version-id <v>
+    -> An error occurred (AccessDenied) when calling the DeleteObject operation:
+       Access Denied because object protected by object lock.
+
+That delete-denial IS the CC-3 property, demonstrated against the live object the flow just wrote.
 
 ## What each line proves
 1. Portable W3C researcher-identity credential issued + verified (US1).
