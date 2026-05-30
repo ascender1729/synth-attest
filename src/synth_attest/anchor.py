@@ -60,15 +60,18 @@ class S3ObjectLockAnchorSink(AnchorSink):
     version cannot be deleted or overwritten before retention expires, by anyone including the
     account root. Roots are written under anchors/<batch_id>.root.
 
-    Requires boto3 (synth-attest[aws]) and an S3 bucket that already has Object Lock enabled with a
-    default retention rule. This sink never creates or configures the bucket (that is an operator,
-    infra-as-code concern); it only writes/reads roots, so it holds no destructive permission."""
+    Requires boto3 (synth-attest[aws]) and an S3 bucket that already has Object Lock enabled. This
+    sink never creates or configures the bucket (an operator / infra-as-code concern); it only
+    writes/reads roots, so it holds no destructive permission."""
 
     name = "s3-object-lock"
 
-    def __init__(self, bucket: str, prefix: str = "anchors/", client=None):
+    def __init__(self, bucket: str, prefix: str = "anchors/", client=None,
+                 mode: str = "GOVERNANCE", retain_days: int = 1):
         self.bucket = bucket
         self.prefix = prefix.rstrip("/") + "/"
+        self.mode = mode            # GOVERNANCE (cleanable, dev) or COMPLIANCE (root cannot delete)
+        self.retain_days = retain_days
         if client is None:
             import boto3  # optional dep; imported lazily
             client = boto3.client("s3")
@@ -79,17 +82,25 @@ class S3ObjectLockAnchorSink(AnchorSink):
 
     def put_root(self, batch_id, root_hex):
         body = json.dumps({"batch_id": batch_id, "root": root_hex}).encode()
-        resp = self._s3.put_object(Bucket=self.bucket, Key=self._key(batch_id), Body=body)
-        retain = resp.get("ObjectLockRetainUntilDate")
+        # Set retention EXPLICITLY so the receipt truthfully reports the lock. A bucket DEFAULT
+        # retention applies the lock but does NOT echo ObjectLockMode in the put_object response,
+        # which would otherwise make the receipt under-report immutable=False.
+        from datetime import datetime, timedelta, timezone
+        retain_until = datetime.now(timezone.utc) + timedelta(days=self.retain_days)
+        resp = self._s3.put_object(
+            Bucket=self.bucket, Key=self._key(batch_id), Body=body,
+            ObjectLockMode=self.mode, ObjectLockRetainUntilDate=retain_until,
+        )
+        mode = resp.get("ObjectLockMode") or self.mode
         return {
             "sink": self.name,
             "batch_id": batch_id,
             "bucket": self.bucket,
             "key": self._key(batch_id),
             "version_id": resp.get("VersionId"),
-            "object_lock_mode": resp.get("ObjectLockMode"),
-            "retain_until": str(retain) if retain else None,
-            "immutable": resp.get("ObjectLockMode") in ("GOVERNANCE", "COMPLIANCE"),
+            "object_lock_mode": mode,
+            "retain_until": str(retain_until),
+            "immutable": mode in ("GOVERNANCE", "COMPLIANCE"),
         }
 
     def get_root(self, batch_id):
