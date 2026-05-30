@@ -27,12 +27,16 @@ def test_guard_catches_obfuscated_sequences(payload):
 
 
 def test_guard_allows_normal_text():
-    # ordinary metadata must not trip the guard
-    assert_no_sequence({"institution": "Cattic Cat Lab", "note": "order placed"})  # short, no long run
+    # ordinary metadata must not trip the guard (no 20-char ACGTU-only run anywhere)
+    assert_no_sequence({"institution": "Imperial College London",
+                        "note": "purchase request received",
+                        "name": "Dr Ada Researcher"})
 
 
 def test_canonical_strips_separators():
-    assert _canonical(">h\nA T-C.g\tA") == "ATCGA"
+    # all LETTERS survive (incl the FASTA header letter 'h'); separators/punctuation are removed
+    assert _canonical(">h\nA T-C.g\tA") == "HATCGA"
+    assert _canonical("123 atcg-ATCG.") == "ATCGATCG"
 
 
 # --- custody: handle is pseudonymous and registry-secret-dependent ---

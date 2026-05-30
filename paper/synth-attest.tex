@@ -33,7 +33,7 @@ provider-issued revocable exemption credential, and a privacy-preserving, tamper
 order-audit record. The design is vendor-neutral by construction: the core has zero proprietary
 dependencies and runs on a dependency-free reference engine, with any W3C Verifiable Credential
 backend pluggable behind a stable interface. We report a working prototype (592 lines of core
-Python, 33 tests) validated in continuous integration on Python 3.11 and 3.12 in two
+Python, 42 tests) validated in continuous integration on Python 3.11 and 3.12 in two
 configurations: a no-proprietary-dependency core (32 passed, 10 backend tests skipped) and an
 optional backend validated source-blind against its published package (42 passed). We state the
 threat model honestly, scoping the contribution to fraud, attribution, and deterrence at the
@@ -160,10 +160,11 @@ operate a key wallet (a provider or neutral registry custodies the credential, k
 salted hash of an identifier). Every credential and audit field is traced to a named regulatory
 obligation, each marked verified or unverified, and a test fails if any schema field lacks a
 mapping row. Table~\ref{tab:artifacts} summarizes the artifacts; Table~\ref{tab:results} reports
-validation. The suite is 33 tests; in the no-proprietary-dependency configuration 23 pass and
+validation. The suite is 42 tests; in the no-proprietary-dependency configuration 32 pass and
 the 10 backend-specific tests skip, and with the optional backend active (validated source-blind
-against the published package) all 33 pass. Both configurations are green in CI on Python 3.11
-and 3.12.
+against the published package) all 42 pass. Both configurations are green in CI on Python 3.11
+and 3.12. The suite includes hardening tests for the infohazard guard against obfuscated
+sequences, commitment domain separation, and custody pseudonymization.
 
 \begin{table}[t]
 \caption{Artifacts and their key properties}
@@ -243,8 +244,8 @@ governance.
 \appendices
 \section{Reproducibility of reported figures}
 All numeric claims are mechanically checkable from the public repository at the cited commit:
-592 LOC (\texttt{wc -l src/synth\_attest/*.py}); 33 tests collected (\texttt{pytest --co});
-23 passed / 10 skipped core and 33 passed with the optional backend (\texttt{pytest});
+592 LOC (\texttt{wc -l src/synth\_attest/*.py}); 42 tests collected (\texttt{pytest --co});
+32 passed / 10 skipped core and 42 passed with the optional backend (\texttt{pytest});
 batch size $B{=}16$ and the SHA-256 commitment (\texttt{src/synth\_attest/audit.py}); the
 length-20 \texttt{[ACGTU]} guard (\texttt{src/synth\_attest/schemas.py}); optional backend
 version pinned in \texttt{pyproject.toml}. The two CI configurations are defined in
