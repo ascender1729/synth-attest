@@ -42,7 +42,8 @@ class _FakeWormS3:
 
 
 def test_s3_object_lock_sink_writes_immutable_root():
-    sink = S3ObjectLockAnchorSink(bucket="test", client=_FakeWormS3())
+    # COMPLIANCE = production mode (account root cannot delete before retention)
+    sink = S3ObjectLockAnchorSink(bucket="test", client=_FakeWormS3(), mode="COMPLIANCE")
     # build a real batch root from the audit module and witness it
     rec = OrderAuditRecord("ord-1", "did:c", "did:p", "cleared", "securedna")
     root = anchor_batch([rec])
@@ -50,6 +51,14 @@ def test_s3_object_lock_sink_writes_immutable_root():
     assert receipt["immutable"] is True
     assert receipt["object_lock_mode"] == "COMPLIANCE"
     assert sink.get_root("batch-0001") == root
+
+
+def test_s3_object_lock_sink_default_mode_is_immutable():
+    # default GOVERNANCE mode is still immutable (cleanable for dev, but locked)
+    sink = S3ObjectLockAnchorSink(bucket="test", client=_FakeWormS3())
+    receipt = sink.put_root("batch-x", "abc123")
+    assert receipt["immutable"] is True
+    assert receipt["object_lock_mode"] == "GOVERNANCE"
 
 
 def test_s3_object_lock_sink_blocks_delete():
