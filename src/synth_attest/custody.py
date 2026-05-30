@@ -34,7 +34,9 @@ def _handle(customer_email: str, secret: bytes) -> str:
     confirmed without the secret. The raw email is never stored. (This pseudonymizes the key; the
     custodian still holds the customer relationship by design.)"""
     msg = customer_email.strip().lower().encode()
-    return "cust_" + hmac.new(secret, msg, hashlib.sha256).hexdigest()[:16]
+    # 32 hex chars = 128-bit handle (was 64-bit; widened per crypto panel to avoid birthday
+    # collisions across a large customer base).
+    return "cust_" + hmac.new(secret, msg, hashlib.sha256).hexdigest()[:32]
 
 
 @dataclass

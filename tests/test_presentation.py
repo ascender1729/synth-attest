@@ -12,7 +12,7 @@ from synth_attest.schemas import exemption_claims
 @pytest.fixture(params=[StubEngine, AttestixEngine], ids=lambda e: e.name)
 def engine(request):
     try:
-        e = request.param()
+        e = request.param(allow_insecure_default=True) if request.param is StubEngine else request.param()
     except Exception as ex:  # pragma: no cover
         pytest.skip(f"{request.param.__name__} unavailable: {ex}")
     # presentations are optional on some surfaces; skip cleanly if unsupported

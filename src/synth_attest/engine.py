@@ -214,7 +214,20 @@ class StubEngine(CredentialEngine):
 
     name = "stub"
 
-    def __init__(self, secret: bytes = b"synth-attest-stub"):
+    _DEFAULT_SECRET = b"synth-attest-stub-INSECURE-DEFAULT"
+
+    def __init__(self, secret: bytes = None, allow_insecure_default: bool = False):
+        # The StubEngine is a reference/integrity engine under a SYMMETRIC key - never a production
+        # trust anchor. Refuse the hardcoded default unless the caller explicitly opts in (tests,
+        # demos), so it cannot be silently mistaken for a real authenticity backend (crypto panel).
+        if secret is None:
+            if not allow_insecure_default:
+                raise ValueError(
+                    "StubEngine requires an explicit secret. It provides symmetric integrity only, "
+                    "not production VC authenticity. Pass secret=..., or allow_insecure_default=True "
+                    "for tests/demos. Use AttestixEngine (or another asymmetric backend) in production."
+                )
+            secret = self._DEFAULT_SECRET
         self._secret = secret
         self._revoked: set[str] = set()
 

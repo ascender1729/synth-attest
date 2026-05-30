@@ -15,7 +15,7 @@ from synth_attest.schemas import researcher_identity_claims, exemption_claims
 @pytest.fixture(params=[StubEngine, AttestixEngine], ids=lambda e: e.name)
 def engine(request):
     try:
-        return request.param()
+        return request.param(allow_insecure_default=True) if request.param is StubEngine else request.param()
     except Exception as e:  # pragma: no cover - backend unavailable
         pytest.skip(f"{request.param.__name__} unavailable: {e}")
 

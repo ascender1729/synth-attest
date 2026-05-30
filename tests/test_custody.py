@@ -10,7 +10,7 @@ from synth_attest.custody import CustodialRegistry
 @pytest.fixture(params=[StubEngine, AttestixEngine], ids=lambda e: e.name)
 def engine(request):
     try:
-        return request.param()
+        return request.param(allow_insecure_default=True) if request.param is StubEngine else request.param()
     except Exception as ex:  # pragma: no cover
         pytest.skip(f"{request.param.__name__} unavailable: {ex}")
 

@@ -23,6 +23,11 @@ OPAQUE_VERDICTS = ("cleared", "flagged", "tier-review")
 
 BATCH_SIZE = 16  # commitments per anchored batch; orders are padded up to hide true volume
 
+# Per-context domain-separation tags (panel crypto fix S-01.4): a commitment can never be
+# reinterpreted as a batch root or vice versa, even at equal input.
+_DOMAIN_COMMIT = b"synth-attest/commit/v1"
+_DOMAIN_BATCH = b"synth-attest/batch-root/v1"
+
 # HONEST LIMITATION (architecture audit 2026-05-30): fixed-size padded batches hide the order
 # COUNT *within* a batch, but the number of batches and their timing still leak coarse volume.
 # A production deployment must add fixed-cadence anchoring (anchor every T seconds regardless of
@@ -36,7 +41,7 @@ class OrderAuditRecord:
     provider_did: str
     verdict: str
     screening_source: str
-    salt: str = field(default_factory=lambda: os.urandom(16).hex())
+    salt: str = field(default_factory=lambda: os.urandom(32).hex())  # 256-bit salt
 
     def __post_init__(self):
         if self.verdict not in OPAQUE_VERDICTS:
@@ -51,12 +56,16 @@ class OrderAuditRecord:
         })
 
     def commitment(self) -> str:
-        """Salted hash hiding order_id + verdict. Salt stays provider-private and is NOT anchored,
-        so the verdict bit is not recoverable from the anchor (resolves the verdict-oracle risk).
+        """Salted hash hiding order_id + verdict. Salt is 256-bit, stays provider-private, and is
+        NOT anchored, so the verdict bit is not recoverable from the anchor (verdict-oracle risk).
 
-        Each field is length-prefixed (domain separation), so distinct field tuples cannot collide
-        via boundary ambiguity, e.g. ("ab","c") vs ("a","bc) (architecture audit, 2026-05-30)."""
+        Construction: a per-context domain tag, then each field LENGTH-PREFIXED (4-byte big-endian)
+        so distinct field tuples cannot collide via boundary ambiguity, e.g. ("ab","c") vs
+        ("a","bc"). NB (panel honesty note): this is per-field length-prefixing inside one hash, not
+        a Merkle leaf/node scheme; the batch root (anchor_batch) is a flat hash-of-sorted-commits
+        with no RFC-6962 leaf/node tagging - inclusion proofs are future work."""
         h = hashlib.sha256()
+        h.update(_DOMAIN_COMMIT)
         for part in (self.salt, self.order_id, self.verdict, self.customer_did):
             b = part.encode()
             h.update(len(b).to_bytes(4, "big"))
@@ -79,6 +88,7 @@ def anchor_batch(records: list[OrderAuditRecord], batch_size: int = BATCH_SIZE) 
         commits.append(hashlib.sha256(os.urandom(32)).hexdigest())
     commits.sort()  # order within batch carries no information
     root = hashlib.sha256()
+    root.update(_DOMAIN_BATCH)
     for c in commits:
         root.update(bytes.fromhex(c))
     return root.hexdigest()

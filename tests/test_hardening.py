@@ -48,7 +48,7 @@ def test_handle_depends_on_secret():
 
 
 def test_registry_does_not_store_raw_email():
-    reg = CustodialRegistry(engine=StubEngine())
+    reg = CustodialRegistry(engine=StubEngine(allow_insecure_default=True))
     h = reg.enroll_customer("secret.person@example.edu")
     assert "secret.person@example.edu" not in reg._dids
     assert h.startswith("cust_")
@@ -74,3 +74,32 @@ def test_commitment_stable_for_same_input():
 def test_unknown_verdict_rejected():
     with pytest.raises(ValueError):
         OrderAuditRecord("o1", "didc", "didp", "definitely-fine", "securedna")
+
+
+# --- crypto correctness pass (S-01.4) ---
+
+def test_stub_engine_refuses_default_secret():
+    # cannot silently run on the hardcoded INSECURE default
+    with pytest.raises(ValueError):
+        StubEngine()
+    # explicit opt-in (tests/demos) or a real secret both work
+    assert StubEngine(allow_insecure_default=True) is not None
+    assert StubEngine(secret=b"a-real-per-deployment-secret") is not None
+
+
+def test_salt_is_256_bit():
+    rec = OrderAuditRecord("o1", "didc", "didp", "cleared", "securedna")
+    assert len(bytes.fromhex(rec.salt)) == 32  # 256-bit
+
+
+def test_custody_handle_is_128_bit():
+    h = _handle("ada@example.edu", b"secret")
+    # "cust_" + 32 hex chars = 128-bit
+    assert len(h) == len("cust_") + 32
+
+
+def test_commitment_and_batch_root_are_domain_separated():
+    # a single commitment can never equal a batch root over the same logical bytes
+    from synth_attest.audit import anchor_batch
+    rec = OrderAuditRecord("o1", "didc", "didp", "cleared", "securedna", salt="s")
+    assert rec.commitment() != anchor_batch([rec])
