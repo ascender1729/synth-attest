@@ -57,10 +57,21 @@ sequences, does **not** stop benchtop or non-compliant synthesis, and does **not
 genuinely-credentialed malicious insider. It is one layer, not a guarantee. See
 `specs/001/spec.md` and `specs/001/REGULATORY_MAPPING.md`.
 
+## Paper
+
+A short technical paper describing the design, threat model, and validation:
+[`paper/synth-attest.pdf`](paper/synth-attest.pdf) (source: `paper/synth-attest.tex`).
+
 ## Status
 
 Early-stage prototype. Tests pass in CI on Python 3.11 and 3.12 (core with no proprietary deps;
 a second job validates the optional attestix backend source-blind against the published wheel).
+
+## Specs and design
+
+- `specs/001/spec.md` - full specification (user scenarios, functional requirements, success criteria)
+- `specs/001/REGULATORY_MAPPING.md` - per-field trace to named regulatory obligations (each marked verified/unverified)
+- `paper/synth-attest.tex` / `.pdf` - the technical paper
 
 ## License
 

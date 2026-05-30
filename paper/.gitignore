@@ -1,0 +1,9 @@
+build artifacts (gitignore these)
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+build*.log
+b1.log
+b2.log
