@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "synth-attest"
+version = "0.1.0"
+description = "Open, vendor-neutral verifiable-identity and tamper-evident audit layer for DNA-synthesis order compliance. Sits on top of sequence screening; never replaces it."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Pavan Kumar Dubasi" }]
+keywords = ["biosecurity", "dna-synthesis", "verifiable-credentials", "did", "audit", "kyc"]
+# Core has ZERO proprietary dependencies. The default StubEngine needs nothing.
+dependencies = []
+
+[project.optional-dependencies]
+# attestix is ONE optional W3C VC/DID backend. The project does not require it.
+attestix = ["attestix==0.4.0rc2"]
+dev = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
