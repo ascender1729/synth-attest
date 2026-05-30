@@ -219,9 +219,12 @@ IBBIS has published customer-screening guidance and forms and plans a 2026 ident
 analysis but has not built credential software. The ``Know Your Scientist'' proposal~\cite{kys}
 governs access to biological AI design tools (a different chokepoint) via institution-vouching and
 shared exclusion lists, and explicitly does not use verifiable credentials, decentralized
-identifiers, or a cryptographic audit. Against this landscape, the distinguishing and best-supported
-property of synth-attest is being the only \textit{open-source, decentralized W3C-credential
-implementation with a tamper-evident order audit}; portability is a feature, not the core novelty.
+identifiers, or a cryptographic audit. Self-sovereign-identity KYC is itself an
+established pattern outside biosecurity~\cite{kychain,ssikyc}; our contribution is its first
+open application to the DNA-synthesis order chokepoint. Against this landscape, the distinguishing
+and best-supported property of synth-attest is being the only \textit{open-source, decentralized
+W3C-credential implementation with a tamper-evident order audit}; portability is a feature, not
+the core novelty.
 
 \section{Limitations and Future Work}
 \label{sec:limits}
@@ -260,10 +263,11 @@ version pinned in \texttt{pyproject.toml}. The two CI configurations are defined
 \begin{thebibliography}{00}
 \bibitem{paraphrase} E. C. Alley et al. / Microsoft Research, ``Strengthening nucleic-acid
 biosecurity screening against generative protein-design tools,'' \textit{Science}, 2025.
-\bibitem{kys} J. Feldman et al., ``Know Your Scientist: KYC as biosecurity infrastructure,''
-arXiv:2602.06172, 2026.
-\bibitem{securedna} SecureDNA Foundation, ``Verifiably and privately screening global DNA
-synthesis,'' 2024. \url{https://securedna.org/}
+\bibitem{kys} J. Feldman, T. Feldman, and A. I. Anton, ``Know Your Scientist: KYC as Biosecurity
+Infrastructure,'' arXiv:2602.06172, 2026.
+\bibitem{securedna} C. Baum, J. Berlips, W. Chen, et al. (incl. R. L. Rivest, A. Shamir,
+A. C. Yao), ``A system capable of verifiably and privately screening global DNA synthesis,''
+arXiv:2403.14023 / bioRxiv 10.1101/2024.03.20.585782, 2024. \url{https://securedna.org/}
 \bibitem{ibbis} International Biosecurity and Biosafety Initiative for Science, ``The Common
 Mechanism for DNA Synthesis Screening.'' \url{https://ibbis.bio/common-mechanism/}
 \bibitem{s3741} US Senate, ``Biosecurity Modernization and Innovation Act,'' S.3741, 119th
@@ -272,6 +276,10 @@ Congress, 2026.
 synthetic nucleic acids for users and providers,'' 2024.
 \bibitem{w3cvc} W3C, ``Verifiable Credentials Data Model,'' W3C Recommendation.
 \bibitem{w3cdid} W3C, ``Decentralized Identifiers (DIDs) v1.0,'' W3C Recommendation, 2022.
+\bibitem{kychain} C. C. Dragan and M. Manulis, ``KYChain: User-Controlled KYC Data Sharing and
+Certification,'' arXiv:2001.01659, 2020.
+\bibitem{ssikyc} V. Schlatt, J. Sedlmeir, S. Feulner, and N. Urbach, ``Designing a Framework for
+Digital KYC Processes Built on Blockchain-Based Self-Sovereign Identity,'' arXiv:2112.01237, 2021.
 \end{thebibliography}
 
 \end{document}
