@@ -1,4 +1,3 @@
-Facts confirmed (zero core deps, attestix==0.4.0rc2 optional, Apache-2.0, version 0.1.0). Writing the consolidated report now.
 
 # synth-attest: Consolidated Multi-Stakeholder Panel Report + BlueDot Rapid Grant Package
 Prepared for: Pavan Kumar Dubasi | Date: 2026-05-30 | Repo: github.com/ascender1729/synth-attest (Apache-2.0)
@@ -57,7 +56,7 @@ S-5. Standards-grounded and machine-checked (academic, crypto, policy-staffer). 
 
 S-6. Hardened, tested infohazard guard (screening-realist, crypto, adversarial). assert_no_sequence canonicalizes (NFKC, strip non-letters, uppercase) and rejects 7 obfuscation bypasses (lowercase/tab/FASTA/hyphen/punctuation); the only nucleotide-like strings in the repo are negative test fixtures proving the guard fires. Described precisely as defense-in-depth field validation, with not-being-a-screener as the actual structural protection.
 
-## 5. SPRINT PLAN — Sprint S-01 (LOOP.md style: spec -> build -> test -> review)
+## 5. SPRINT PLAN - Sprint S-01 (LOOP.md style: spec -> build -> test -> review)
 
 Theme: convert synth-attest from "honest clever artifact" to "fundable open reference the incumbents can adopt." Ordered by dependency. Each task is one PR.
 
@@ -73,7 +72,7 @@ S-01.2 [SPEC] Headline rename + audit-channel adversary model (addresses CC-6).
 - test: add an assertion in CI doc-lint that the unqualified phrase "privacy-preserving" does not appear in the README headline bullet.
 - review: crypto + academic persona. DoD: headline claim matches what the code earns.
 
-S-01.3 [BUILD] Durable external anchor (addresses CC-3 — the crypto-panel CRITICAL).
+S-01.3 [BUILD] Durable external anchor (addresses CC-3 - the crypto-panel CRITICAL).
 - spec: define an append-only durable backend with external witnessing: file/append-only log for durability now, plus an RFC 6962-style signed-tree-head transparency-log interface (or RFC 3161 timestamp) so a holder of a prior STH detects provider equivocation.
 - build: AppendOnlyLogEngine backend (no attestix throughput ceiling); anchor_batch persists + emits a witnessable root.
 - test: restart-survives-tamper test; equivocation-detected test against a stored prior STH; add per-context domain tags (b'synth-attest/commit/v1', '/batch-root/v1', '/custody/v1').
@@ -103,22 +102,22 @@ S-01.7 [BUILD] Screening-binding + machine-readable scope assertion (addresses C
 - test: assert no response field can be parsed as an order-safety clearance; assert verifier fails closed without a screening attestation.
 - review: policy-staffer + academic persona. DoD: the credential can never be waved as a screening fig leaf.
 
-S-01.8 [SPEC+REVIEW] ADOPTION.md + interop mapping + one documented touchpoint (addresses CC-1, CC-2 — the existential one; do this in parallel, it gates the grant's success metric).
+S-01.8 [SPEC+REVIEW] ADOPTION.md + interop mapping + one documented touchpoint (addresses CC-1, CC-2 - the existential one; do this in parallel, it gates the grant's success metric).
 - spec: ADOPTION.md (smallest real pilot, e.g. a provider issuing exemption VCs for a teaching-exempt class against mock orders; the exact de-risking milestone; "what happens if IBBIS ships" contingency = you become their open reference impl). Field-level mapping from credential/audit schema to IGSC Harmonized Screening Protocol v3.0 (extend REGULATORY_MAPPING.md). X.509-ECS-to-VC bridge note.
 - build: docs + one outreach email thread to IBBIS / SecureDNA / one IGSC provider acknowledging the open W3C reference and asking whether they would issue/consume it.
 - test: n/a (artifact-based).
 - review: company + screening-realist persona. DoD (and the grant's falsifiable 3-6 month metric): at least one written external touchpoint on record, plus the IGSC interop mapping committed.
 
-## 6. GRANT PACKAGE — BlueDot Rapid Grant (ready to paste)
+## 6. GRANT PACKAGE - BlueDot Rapid Grant (ready to paste)
 
 Recommended ask: USD 8,000 (within the $50-10k band; reserves headroom and signals a scoped, milestone-bound increment, not a max-out reach).
 
 Line items:
-- USD 3,000 — Durable, externally-witnessed audit anchor (append-only log + RFC 6962-style signed-tree-head interface) so tamper-evidence holds against the audited provider, not just third parties (S-01.3). The single highest-leverage engineering fix.
-- USD 1,500 — Crypto-correctness pass: per-field 256-bit salts, per-context domain tags, RFC-6962 leaf/node prefixing, StubEngine default-secret refusal, fixed-cadence anchoring with a documented leakage bound (S-01.4, S-01.5).
-- USD 1,500 — Issuance root-of-trust + GOVERNANCE.md (LoA framework, Sybil/self-issuance controls, revocation due-process, false-attribution recourse, exclusion safeguards) and the screening-binding + machine-readable scope assertion (S-01.6, S-01.7).
-- USD 1,500 — Interop + adoption: field-level mapping to the IGSC Harmonized Screening Protocol v3.0, X.509-ECS-to-VC bridge note, ADOPTION.md, and documented outreach to IBBIS / SecureDNA / one IGSC provider (S-01.1, S-01.8).
-- USD 500 — External infohazard + security review of repo + paper by a named biosecurity-governance reviewer, cited in the paper.
+- USD 3,000 - Durable, externally-witnessed audit anchor (append-only log + RFC 6962-style signed-tree-head interface) so tamper-evidence holds against the audited provider, not just third parties (S-01.3). The single highest-leverage engineering fix.
+- USD 1,500 - Crypto-correctness pass: per-field 256-bit salts, per-context domain tags, RFC-6962 leaf/node prefixing, StubEngine default-secret refusal, fixed-cadence anchoring with a documented leakage bound (S-01.4, S-01.5).
+- USD 1,500 - Issuance root-of-trust + GOVERNANCE.md (LoA framework, Sybil/self-issuance controls, revocation due-process, false-attribution recourse, exclusion safeguards) and the screening-binding + machine-readable scope assertion (S-01.6, S-01.7).
+- USD 1,500 - Interop + adoption: field-level mapping to the IGSC Harmonized Screening Protocol v3.0, X.509-ECS-to-VC bridge note, ADOPTION.md, and documented outreach to IBBIS / SecureDNA / one IGSC provider (S-01.1, S-01.8).
+- USD 500 - External infohazard + security review of repo + paper by a named biosecurity-governance reviewer, cited in the paper.
 
 Three strongest evidence points:
 1. Already substantially built and unusually honest: a 592-LOC dependency-free core (pyproject dependencies=[] verified), 42 tests, CI green on Python 3.11+3.12, an IEEE paper with figures and tables compiled, and a public Apache-2.0 repo. The team self-corrected its own earlier privacy overclaim (logged in IMPLEMENTATION_CROSSCHECK.md) and discloses every limitation (cross-batch volume/timing leak, no-ZK, in-memory durability, the attestix rc2 ~4.4 ops/s ceiling) in code, spec, and paper.
@@ -131,18 +130,18 @@ synth-attest is the open, vendor-neutral reference implementation of the portabl
 ## 7. CITATION LIST (use exactly; do not invent)
 
 arXiv (verified via live arXiv API 2026-05-30):
-- arXiv 2602.06172v1 — "Know Your Scientist: KYC as Biosecurity Infrastructure" (Jonathan Feldman, Tal Feldman, Annie I. Anton). CONFIRMED. CITE-AS arXiv.
-- arXiv 2403.14023v3 — "A system capable of verifiably and privately screening global DNA synthesis" (SecureDNA; Baum, Berlips, Chen, ... Esvelt, Rivest, Shamir, Vaikuntanathan, Yao, Yu, ...). CONFIRMED. CITE-AS the gold-standard prior art being generalized; never as a peer outclassed on cryptography.
-- arXiv 2001.01659 — "KYChain: User-Controlled KYC Data Sharing and Certification" (Dragan, Manulis). CONFIRMED. CITE-AS established VC/blockchain KYC prior art.
-- arXiv 2112.01237 — "Designing a Framework for Digital KYC Processes Built on Blockchain-Based Self-Sovereign Identity" (Schlatt, Sedlmeir, Feulner, Urbach). CONFIRMED. CITE-AS established SSI-KYC prior art.
-- arXiv 2506.11613 — "Model Organisms for Emergent Misalignment" (Turner, Soligo, Taylor, Rajamanoharan, Nanda). CONFIRMED. CITE-AS only in the operator's separate AI-safety track; NOT relevant to this bio project.
+- arXiv 2602.06172v1 - "Know Your Scientist: KYC as Biosecurity Infrastructure" (Jonathan Feldman, Tal Feldman, Annie I. Anton). CONFIRMED. CITE-AS arXiv.
+- arXiv 2403.14023v3 - "A system capable of verifiably and privately screening global DNA synthesis" (SecureDNA; Baum, Berlips, Chen, ... Esvelt, Rivest, Shamir, Vaikuntanathan, Yao, Yu, ...). CONFIRMED. CITE-AS the gold-standard prior art being generalized; never as a peer outclassed on cryptography.
+- arXiv 2001.01659 - "KYChain: User-Controlled KYC Data Sharing and Certification" (Dragan, Manulis). CONFIRMED. CITE-AS established VC/blockchain KYC prior art.
+- arXiv 2112.01237 - "Designing a Framework for Digital KYC Processes Built on Blockchain-Based Self-Sovereign Identity" (Schlatt, Sedlmeir, Feulner, Urbach). CONFIRMED. CITE-AS established SSI-KYC prior art.
+- arXiv 2506.11613 - "Model Organisms for Emergent Misalignment" (Turner, Soligo, Taylor, Rajamanoharan, Nanda). CONFIRMED. CITE-AS only in the operator's separate AI-safety track; NOT relevant to this bio project.
 
 Non-arXiv (cite by the stated venue, never as arXiv):
-- Microsoft "Paraphrase Project" — CITE-AS Science (Oct 2025). MUST NOT be cited as arXiv.
-- W3C Verifiable Credentials Data Model + DID Core — CITE-AS w3.org Recommendations.
-- US S.3741 — CITE-AS a BILL (congress.gov), "proposed legislation (introduced), not enacted." Never as in-force law.
-- UK DSIT synthetic-nucleic-acid guidance — CITE-AS gov.uk, in force.
-- ISO 20688-2:2024 — CITE-AS iso.org; use "aligned with" / "mapped to" only, never "conforms" / "certified."
+- Microsoft "Paraphrase Project" - CITE-AS Science (Oct 2025). MUST NOT be cited as arXiv.
+- W3C Verifiable Credentials Data Model + DID Core - CITE-AS w3.org Recommendations.
+- US S.3741 - CITE-AS a BILL (congress.gov), "proposed legislation (introduced), not enacted." Never as in-force law.
+- UK DSIT synthetic-nucleic-acid guidance - CITE-AS gov.uk, in force.
+- ISO 20688-2:2024 - CITE-AS iso.org; use "aligned with" / "mapped to" only, never "conforms" / "certified."
 
 ## 8. HONESTY LEDGER
 
@@ -163,7 +162,7 @@ Disclosed limitations (keep visible, near every headline claim):
 - PROTOTYPE not production: in-memory store, no durability, no external anchor in the default engine; tamper-evidence does not survive a restart.
 - Cross-batch volume/timing still leaks coarse volume (batch count + timing + padded size); verdict and intra-batch order count are hidden. Fixed-cadence anchoring is the named-but-unimplemented mitigation.
 - No ZK; selective disclosure only, and the default-engine SD is not a sound primitive (linkable).
-- AttestixEngine attestix==0.4.0rc2 is a pre-release pin; the ~4.4 ops/s ceiling is itself currently unbenchmarked (Throughput/anchor-cost benchmark NOT STARTED) — either measure it or label it "unbenchmarked, expected low."
+- AttestixEngine attestix==0.4.0rc2 is a pre-release pin; the ~4.4 ops/s ceiling is itself currently unbenchmarked (Throughput/anchor-cost benchmark NOT STARTED) - either measure it or label it "unbenchmarked, expected low."
 - B=16 anonymity set is small; the batch flush trigger is unspecified/unimplemented, so (B,T) are security parameters not yet operationalized.
 - Custody centralizes DID/key material server-side; registry-secret compromise = full deanonymization + impersonation of all custodied customers. Handle is 64-bit (birthday-collision exposure).
 - Issuance root-of-trust, identity-proofing LoA, and governance/recourse for the identity registry are unbuilt (flagged as the principal open architectural question).
