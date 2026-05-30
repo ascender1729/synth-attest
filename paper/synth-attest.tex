@@ -34,8 +34,8 @@ order-audit record. The design is vendor-neutral by construction: the core has z
 dependencies and runs on a dependency-free reference engine, with any W3C Verifiable Credential
 backend pluggable behind a stable interface. We report a working prototype (592 lines of core
 Python, 33 tests) validated in continuous integration on Python 3.11 and 3.12 in two
-configurations: a no-proprietary-dependency core (23 passed, 10 backend tests skipped) and an
-optional backend validated source-blind against its published package (33 passed). We state the
+configurations: a no-proprietary-dependency core (32 passed, 10 backend tests skipped) and an
+optional backend validated source-blind against its published package (42 passed). We state the
 threat model honestly, scoping the contribution to fraud, attribution, and deterrence at the
 acquisition node.
 \end{abstract}
@@ -46,21 +46,28 @@ know-your-customer, compliance
 \end{IEEEkeywords}
 
 \section{Introduction}
-Advances in machine learning lower the barrier to designing biological sequences of concern,
-making the nucleic-acid synthesis-order step one of the few remaining physical chokepoints for
-governance. Sequence-screening systems such as SecureDNA~\cite{securedna} and the IBBIS Common
-Mechanism~\cite{ibbis} assess whether an ordered sequence matches a hazard, but they do not
-establish \textit{who} is ordering, whether that customer is a verified and legitimate
-researcher, or whether the order decision leaves a tamper-evident, independently verifiable
-record. Recent and proposed regulation, including the US Biosecurity Modernization and
-Innovation Act of 2026~\cite{s3741}, the US OSTP nucleic-acid-synthesis framework, UK DSIT
-screening guidance~\cite{dsit}, and the proposed EU Biotech Act, pushes providers toward
-customer identity verification and recordkeeping. No shared, portable tooling exists to meet
-these obligations; commercial entrants address them with closed, per-provider KYC workflows.
+Advances in machine learning lower the barrier to designing biological sequences of concern. A
+2025 study found that AI-designed variants of toxic proteins evaded the sequence-screening tools
+used by synthesis providers, with one tool missing more than 75\% of roughly 76{,}000
+variants before patching~\cite{paraphrase}. This makes \textit{who is ordering} as important as
+\textit{what is ordered}, and the synthesis-order step one of the few remaining physical
+chokepoints for governance. Sequence-screening systems such as SecureDNA~\cite{securedna} and
+the IBBIS Common Mechanism~\cite{ibbis} assess whether an ordered sequence matches a hazard, but
+they do not establish whether the customer is a verified and legitimate researcher, or whether
+the order decision leaves a tamper-evident, independently verifiable record. Recent and proposed
+regulation, including the US Biosecurity Modernization and Innovation Act of 2026~\cite{s3741}
+(a bill), the US OSTP nucleic-acid-synthesis framework, UK DSIT screening guidance~\cite{dsit}
+(in force), and the proposed EU Biotech Act, pushes providers toward customer identity
+verification and recordkeeping. The 2026 policy literature converges on identity as the durable
+control~\cite{kys}, but the available implementations are closed and centralized: commercial
+entrants such as Aclid offer per-provider KYC software, and no open-source, decentralized
+implementation with a tamper-evident cross-provider order audit exists.
 
 We present \textbf{synth-attest}, an open, vendor-neutral layer that adds the missing identity
-and audit capabilities on top of existing screening. It is deliberately scoped: it does not
-screen sequences and never handles sequence data.
+and audit capabilities on top of existing screening. We do not claim to have discovered that
+identity matters; we provide the open, decentralized, audited implementation the 2026 literature
+calls for but has not built. It is deliberately scoped: it does not screen sequences and never
+handles sequence data.
 
 \section{Threat Model and Honest Scope}
 We map the engineered-pandemic kill chain as: capability uplift, acquire materials, synthesize,
@@ -184,10 +191,10 @@ Disclosure proof & holder & selective; reveals chosen fields only \\
 \toprule
 \textbf{Configuration} & \textbf{Passed} & \textbf{Skipped} \\
 \midrule
-Core only (no proprietary dependency) & 23 & 10 \\
-Optional backend (source-blind, published) & 33 & 0 \\
+Core only (no proprietary dependency) & 32 & 10 \\
+Optional backend (source-blind, published) & 42 & 0 \\
 \midrule
-\multicolumn{3}{@{}l}{Python 3.11 and 3.12; 33 tests collected; 592 LOC core.} \\
+\multicolumn{3}{@{}l}{Python 3.11 and 3.12; 42 tests collected; 592 LOC core.} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -199,20 +206,34 @@ number of real orders in the batch, so order volume is not recoverable from what
 
 \section{Related Work and Positioning}
 Sequence-screening systems~\cite{securedna,ibbis} are complementary, not competing; synth-attest
-consumes their verdicts as opaque tokens. Commercial KYC entrants for synthesis providers use
-centralized identity verification and per-provider recordkeeping. The distinguishing properties
-of synth-attest are portable W3C credentials, cross-provider tamper-evident audit, and an open,
-vendor-neutral implementation, none of which the centralized approaches provide.
+consumes their verdicts as opaque tokens. Commercial KYC entrants such as Aclid use centralized,
+per-provider identity verification with no portable customer-held credential or cross-provider
+audit. SecureDNA's Exemption Certification System pre-vets customers and orders but is not a
+portable identity. IBBIS has published customer-screening forms and plans a 2026 identity
+landscape analysis but has not built credentials. The ``Know Your Scientist'' proposal~\cite{kys}
+governs access to biological AI design tools (a different chokepoint) via institution-vouching and
+shared exclusion lists, and explicitly does not use verifiable credentials, decentralized
+identifiers, or a cryptographic audit. Against this landscape, the distinguishing and best-supported
+property of synth-attest is being the only \textit{open-source, decentralized W3C-credential
+implementation with a tamper-evident order audit}; portability is a feature, not the core novelty.
 
 \section{Limitations and Future Work}
-The reported results are functional and integration tests of a prototype, not an empirical study
-of deployed effectiveness. The exemption and audit models are validated against published
-descriptions of real screening practice but not yet against a live provider integration. A
-credential-tiering field is deliberately omitted pending confirmation that any real framework
-tiers researcher clearance rather than data sensitivity. An issuer trust-root design (accrediting
-identity issuers without recreating a centralized authority) is the principal open architectural
-question. Throughput and anchor-cost at realistic order volumes, and a live screening
-integration, are the next validation steps.
+This is a prototype, not a production system, and the reported results are functional and
+integration tests, not an empirical study of deployed effectiveness. Four limitations are
+explicit. (1) \textit{Privacy of the audit:} fixed-size batches hide the order count within a
+batch, but the number of batches and their timing still leak coarse volume; closing this needs
+fixed-cadence anchoring. (2) \textit{Durability:} the reference implementation holds records and
+anchors in memory, so tamper-evidence does not survive a restart; persistence is the first
+production step. (3) \textit{Data protection:} storing researcher identity attributes creates a
+tension between an immutable audit and the right to erasure under GDPR/DPDP-style regimes; the
+intended mitigation is to keep personal data off the anchored ledger and anchor only hashes. (4)
+\textit{Dependency maturity:} the optional backend is a release candidate with limited
+throughput, unsuitable for high order volumes as-is. A credential-tiering field is deliberately
+omitted pending confirmation that any real framework tiers researcher clearance rather than data
+sensitivity. An issuer trust-root design (accrediting identity issuers without recreating a
+centralized authority) is the principal open architectural question. A provider using
+synth-attest only partially meets its obligations, since the layer adds identity and audit but not
+screening; we therefore describe it as helping to satisfy, not satisfying, these requirements.
 
 \section{Conclusion}
 synth-attest supplies the identity and audit layer that sequence screening leaves open, as an
@@ -230,6 +251,10 @@ version pinned in \texttt{pyproject.toml}. The two CI configurations are defined
 \texttt{.github/workflows/ci.yml}.
 
 \begin{thebibliography}{00}
+\bibitem{paraphrase} E. C. Alley et al. / Microsoft Research, ``Strengthening nucleic-acid
+biosecurity screening against generative protein-design tools,'' \textit{Science}, 2025.
+\bibitem{kys} J. Feldman et al., ``Know Your Scientist: KYC as biosecurity infrastructure,''
+arXiv:2602.06172, 2026.
 \bibitem{securedna} SecureDNA Foundation, ``Verifiably and privately screening global DNA
 synthesis,'' 2024. \url{https://securedna.org/}
 \bibitem{ibbis} International Biosecurity and Biosafety Initiative for Science, ``The Common

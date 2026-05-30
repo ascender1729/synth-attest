@@ -8,13 +8,18 @@ modeled on SecureDNA's Exemption Certification System. No credential carries a r
 from __future__ import annotations
 
 import re
+import unicodedata
 
-# Guard definition (was an unspecified comment in the spec; the adversary review flagged it).
-# Reject any run of >= MIN_RUN characters drawn only from the nucleotide alphabet (case-
-# insensitive), after stripping whitespace. This is deliberately conservative: it errs toward
-# false positives, which is the safe direction for an infohazard boundary.
+# Infohazard guard (FR-005). Hardened after the 2026-05-30 architecture audit, which showed the
+# original (strip spaces/newlines only) was trivially bypassable via tabs, FASTA headers, mixed
+# case, or punctuation gaps. We now NFKC-normalize, uppercase, and strip ALL non-letter
+# characters before scanning, so "a t c g..." / "ATCG-ATCG..." / FASTA-wrapped runs are caught.
+# Deliberately conservative: errs toward false positives, the safe direction for an infohazard
+# boundary. This is a defence-in-depth heuristic, not a proof; sequence data must never be sent
+# to this layer in the first place.
 MIN_RUN = 20
-_SEQ = re.compile(r"[ACGTU]{%d,}" % MIN_RUN, re.IGNORECASE)
+_SEQ = re.compile(r"[ACGTU]{%d,}" % MIN_RUN)
+_NON_LETTER = re.compile(r"[^A-Za-z]+")
 
 
 class InfohazardError(ValueError):
@@ -32,10 +37,18 @@ def _iter_strings(obj):
             yield from _iter_strings(v)
 
 
+def _canonical(s: str) -> str:
+    """NFKC-normalize, drop every non-letter character, uppercase. Collapses whitespace, tabs,
+    FASTA headers, hyphens, and other separators so an obfuscated run is still detected."""
+    s = unicodedata.normalize("NFKC", s)
+    return _NON_LETTER.sub("", s).upper()
+
+
 def assert_no_sequence(payload) -> None:
-    """Raise InfohazardError if any string anywhere in payload looks like a nucleotide run."""
+    """Raise InfohazardError if any string anywhere in payload looks like a nucleotide run, after
+    canonicalization (FR-005). Defence-in-depth: callers must never pass sequence data at all."""
     for s in _iter_strings(payload):
-        if _SEQ.search(s.replace(" ", "").replace("\n", "")):
+        if _SEQ.search(_canonical(s)):
             raise InfohazardError("sequence-like data rejected by infohazard guard (FR-005)")
 
 

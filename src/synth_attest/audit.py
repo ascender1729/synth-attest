@@ -23,6 +23,11 @@ OPAQUE_VERDICTS = ("cleared", "flagged", "tier-review")
 
 BATCH_SIZE = 16  # commitments per anchored batch; orders are padded up to hide true volume
 
+# HONEST LIMITATION (architecture audit 2026-05-30): fixed-size padded batches hide the order
+# COUNT *within* a batch, but the number of batches and their timing still leak coarse volume.
+# A production deployment must add fixed-cadence anchoring (anchor every T seconds regardless of
+# load) to close the cross-batch timing channel. Documented in spec sec on limitations.
+
 
 @dataclass
 class OrderAuditRecord:
@@ -47,12 +52,15 @@ class OrderAuditRecord:
 
     def commitment(self) -> str:
         """Salted hash hiding order_id + verdict. Salt stays provider-private and is NOT anchored,
-        so the verdict bit is not recoverable from the anchor (resolves the verdict-oracle risk)."""
+        so the verdict bit is not recoverable from the anchor (resolves the verdict-oracle risk).
+
+        Each field is length-prefixed (domain separation), so distinct field tuples cannot collide
+        via boundary ambiguity, e.g. ("ab","c") vs ("a","bc) (architecture audit, 2026-05-30)."""
         h = hashlib.sha256()
-        h.update(self.salt.encode())
-        h.update(self.order_id.encode())
-        h.update(self.verdict.encode())
-        h.update(self.customer_did.encode())
+        for part in (self.salt, self.order_id, self.verdict, self.customer_did):
+            b = part.encode()
+            h.update(len(b).to_bytes(4, "big"))
+            h.update(b)
         return h.hexdigest()
 
 

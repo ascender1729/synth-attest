@@ -128,6 +128,43 @@ production India RCGM pilot (keep schema RCGM-extensible only).
 | VIII | Security & secrets hygiene | PASS - private repo, no secrets/PII |
 | IX | Persona-validated before lock | PASS - 5 reviews incorporated (REVIEW_FINDINGS.md); Bedrock 55-persona run is next gate |
 
+## 9a. Deep-audit findings folded in (2026-05-30)
+
+A 6-dimension audit (novelty, architecture, legal, financial, reliability, grant-fit), each
+adversarially verified, produced these changes (full verdicts archived from run wf_996894e3):
+
+NOVELTY (confidence high): the *premise* (verify who orders, not just what) is now 2026 field
+consensus, driven by the Microsoft "Paraphrase Project" (Science, Oct 2025: AI-designed toxin
+variants evaded vendor screening, one tool missed >75% of ~76,000 variants). Reframe: do NOT
+claim "no tooling exists" or "portable identity is the novelty"; the defensible claim is "the only
+OPEN-SOURCE, decentralized W3C-VC + tamper-evident order-audit implementation." Cite Microsoft
+Paraphrase Project as motivation; cite Aclid, SecureDNA ECS, IBBIS, and "Know Your Scientist"
+(arXiv 2602.06172 - governs AI-tool access, not synthesis ordering; institution-vouching, no VC/DID)
+in related work. Issuer trust-root is the principal unbuilt differentiator.
+
+ARCHITECTURE (high) - FIXED in code: (1) infohazard guard hardened (NFKC + strip all non-letters +
+uppercase; catches tabs/FASTA/lowercase/punctuation bypasses); (2) audit commitment now
+length-prefixed per field (domain separation); (3) custody handle now HMAC-with-registry-secret
+(was brute-forceable plain SHA-256 of low-entropy email); (4) hardening test suite added. STILL
+OPEN: cross-batch timing/volume leak (need fixed-cadence anchoring); durability (in-memory only);
+StubEngine/AttestixEngine conformance gaps.
+
+LEGAL (medium): every regulatory citation reframed to "helps satisfy", not "satisfies"; S.3741 is
+a BILL, EU Art.44 a PROPOSAL, UK DSIT the strongest in-force obligation. NEW: storing researcher
+PII (name/institution/ORCID) in credentials triggers GDPR/DPDP duties - the immutable-audit vs
+right-to-erasure tension is the sharpest legal issue; mitigation = store PII off-ledger, anchor
+only hashes. A provider using synth-attest only PARTIALLY satisfies obligations (no screening).
+
+FINANCIAL (medium): honest verdict = saves money MODESTLY and INDIRECTLY. Real driver = avoided
+per-provider re-onboarding for researchers ordering from multiple providers (anchor benchmark:
+Aclid AI-KYC ~$1.18/customer vs ~$14 manual). Running cost near-zero (one hash root per batch of
+16). Lead with researcher/ecosystem savings, NOT single-provider ROI; keep all numbers as labeled
+estimates. See COST_MODEL.md.
+
+RELIABILITY (high): this is a PROTOTYPE, not production. Gaps: attestix rc2 ~4.4 ops/s ceiling;
+in-memory audit (no durability); hardcoded StubEngine HMAC secret (non-production); FR-010 async
+anchoring unimplemented; no load/concurrency/crash tests. Label honestly everywhere.
+
 ## 10. Resolved review questions
 1. Portability: portable IDENTITY only; clearance/exemption stays provider-local (liability). RESOLVED.
 2. Fundability: open-source neutral layer + swappable engine (FR-009) + ecosystem letters. RESOLVED in tasks.

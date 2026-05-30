@@ -4,7 +4,7 @@ issuance, and selective-disclosure presentation all work via a handle (email-key
 import pytest
 
 from synth_attest.engine import AttestixEngine, StubEngine
-from synth_attest.custody import CustodialRegistry, _handle
+from synth_attest.custody import CustodialRegistry
 
 
 @pytest.fixture(params=[StubEngine, AttestixEngine], ids=lambda e: e.name)
@@ -19,7 +19,7 @@ def test_enroll_is_idempotent_and_handle_stable(engine):
     reg = CustodialRegistry(engine=engine)
     h1 = reg.enroll_customer("Ada@Example.edu ")
     h2 = reg.enroll_customer("ada@example.edu")  # different case/space, same person
-    assert h1 == h2 == _handle("ada@example.edu")
+    assert h1 == h2 == reg.handle_for("ada@example.edu")
     assert reg.did_for(h1)  # a DID is custodied, customer did nothing
 
 

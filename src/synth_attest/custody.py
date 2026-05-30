@@ -17,6 +17,8 @@ This module is intentionally engine-agnostic (works with StubEngine or AttestixE
 from __future__ import annotations
 
 import hashlib
+import hmac
+import os
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -24,9 +26,15 @@ from .engine import CredentialEngine
 from .schemas import researcher_identity_claims, exemption_claims
 
 
-def _handle(customer_email: str) -> str:
-    """Stable, non-reversible handle for a customer (do not store raw email as the key)."""
-    return "cust_" + hashlib.sha256(customer_email.strip().lower().encode()).hexdigest()[:16]
+def _handle(customer_email: str, secret: bytes) -> str:
+    """Stable pseudonymous handle for a customer, keyed by a per-registry SECRET.
+
+    Architecture audit (2026-05-30): a plain SHA-256 of an email is brute-force-reversible because
+    emails are low-entropy. We use HMAC with a registry secret so the mapping cannot be reversed or
+    confirmed without the secret. The raw email is never stored. (This pseudonymizes the key; the
+    custodian still holds the customer relationship by design.)"""
+    msg = customer_email.strip().lower().encode()
+    return "cust_" + hmac.new(secret, msg, hashlib.sha256).hexdigest()[:16]
 
 
 @dataclass
@@ -35,12 +43,17 @@ class CustodialRegistry:
     per custodian (provider or neutral body). Backed by whatever CredentialEngine is configured."""
 
     engine: CredentialEngine
+    secret: bytes = field(default_factory=lambda: os.urandom(32))  # per-registry HMAC key
     _dids: dict = field(default_factory=dict)  # handle -> did
+
+    def handle_for(self, customer_email: str) -> str:
+        """The pseudonymous handle for an email under THIS registry's secret."""
+        return _handle(customer_email, self.secret)
 
     def enroll_customer(self, customer_email: str) -> str:
         """Idempotent: create-and-custody a DID for this customer if absent; return the handle.
         The customer does nothing except be a verified email/identity to the provider."""
-        h = _handle(customer_email)
+        h = self.handle_for(customer_email)
         if h not in self._dids:
             self._dids[h] = self.engine.create_did()
         return h
