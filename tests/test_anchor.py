@@ -23,13 +23,15 @@ class _FakeWormS3:
         self.objects = {}   # key -> latest body
         self.versions = {}  # key -> list of (version_id, body, locked)
 
-    def put_object(self, Bucket, Key, Body):
+    def put_object(self, Bucket, Key, Body, **kwargs):
         vlist = self.versions.setdefault(Key, [])
         vid = f"v{len(vlist) + 1}"
         vlist.append((vid, Body, True))
         self.objects[Key] = Body
-        return {"VersionId": vid, "ObjectLockMode": "COMPLIANCE",
-                "ObjectLockRetainUntilDate": "2026-06-30T00:00:00Z"}
+        # echo the lock the caller requested (matches real S3 when set explicitly)
+        return {"VersionId": vid,
+                "ObjectLockMode": kwargs.get("ObjectLockMode", "COMPLIANCE"),
+                "ObjectLockRetainUntilDate": kwargs.get("ObjectLockRetainUntilDate", "2026-06-30T00:00:00Z")}
 
     def get_object(self, Bucket, Key):
         import io
