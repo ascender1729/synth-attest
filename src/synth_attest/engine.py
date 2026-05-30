@@ -1,5 +1,6 @@
-"""Swappable credential engine (FR-009). AttestixEngine wraps attestix==0.4.x; StubEngine is a
-dependency-free reference so contract tests prove the layer is not locked to Attestix (SC-005)."""
+"""Swappable credential engine (FR-009). StubEngine is the dependency-free default and the
+authoritative contract; AttestixEngine is one optional backend wrapping attestix==0.4.x. Contract
+tests run on both, proving the layer is not locked to any single vendor (SC-005)."""
 
 from __future__ import annotations
 
