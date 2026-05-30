@@ -1,9 +1,8 @@
 # Spec 001: Verified-Researcher Identity + Exemption Attestation for DNA-Synthesis Orders
 
-Status: REVISED v2 (post persona-review 2026-05-30; see REVIEW_FINDINGS.md)
-Owner: Pavan Kumar Dubasi (VibeTensor)
-Built on: attestix==0.4.0rc2 (behind a swappable CredentialEngine interface)
-Source intel: ATTESTIX_BIOSEC_COMPETITIVE_GAP_2026-05-30
+Status: REVISED v2 (post design review 2026-05-30)
+Project: synth-attest (independent, Apache-2.0)
+Architecture: swappable CredentialEngine; default StubEngine has zero proprietary deps; attestix is one optional backend
 
 ## 1. Summary
 
